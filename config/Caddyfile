@@ -1,0 +1,11 @@
+__DOMAIN__ {
+  encode zstd gzip
+
+  handle /ray* {
+    reverse_proxy 127.0.0.1:10000
+  }
+
+  handle {
+    respond "OK"
+  }
+}
