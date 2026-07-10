@@ -38,7 +38,9 @@ HTTP listener on port 80 for certificate issuance.
 Configuration generation will select a mode-specific Xray template (WebSocket,
 REALITY, or combined) and a Caddy template that receives the selected HTTPS
 port. Placeholder replacement will cover the domain, UUID, REALITY destination,
-SNI, private key, public key, short ID, and WebSocket port/path as needed.
+ SNI, private key, short ID, and WebSocket port/path as needed. The public key
+ is derived from the stored private key and printed for the client, but is not
+ written into the server configuration.
 
 REALITY key material and short IDs are generated once per installation and
 persisted under `/etc/raystack` so a rerun does not silently invalidate existing

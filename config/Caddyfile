@@ -1,3 +1,7 @@
+{
+  https_port __HTTPS_PORT__
+}
+
 __DOMAIN__ {
   encode zstd gzip
 

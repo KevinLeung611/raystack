@@ -2,8 +2,8 @@
 
 `raystack` is a simple bash-based CLI project for deploying a VPS proxy stack with:
 
-- Xray (`VLESS + WebSocket + TLS`)
-- Caddy (automatic HTTPS)
+- Xray (`VLESS + WebSocket + TLS` and `VLESS + TCP + REALITY`)
+- Caddy (automatic HTTPS, when WebSocket mode is selected)
 - systemd service management
 
 ## Features
@@ -11,8 +11,9 @@
 - Bash only
 - Simple project structure
 - Idempotent install flow
-- Auto-generate UUID
-- Generate Xray and Caddy config files
+- Interactive mode selection
+- Generate or reuse UUID and REALITY credentials
+- Generate mode-specific Xray and Caddy config files
 - Enable and start services with `systemd`
 
 ## Project Structure
@@ -21,7 +22,9 @@
 raystack/
 ├── install.sh
 ├── config/
-│   ├── xray.json
+│   ├── xray-ws.json
+│   ├── xray-reality.json
+│   ├── xray-both.json
 │   └── Caddyfile
 └── scripts/
     ├── install_xray.sh
@@ -37,20 +40,27 @@ raystack/
 
 ## Usage
 
-Run the installer with your domain:
+Run the installer:
 
 ```bash
-./install.sh --domain example.com
+./install.sh
 ```
+
+Choose one of the prompts:
+
+1. `VLESS + WebSocket + TLS` — enter the domain to use.
+2. `VLESS + TCP + REALITY` — confirm or override the displayed REALITY destination and SNI.
+3. Both modes — enter a WebSocket domain and confirm or override the REALITY defaults.
 
 ## What The Installer Does
 
 1. Installs system dependencies
 2. Installs Xray
-3. Installs Caddy
-4. Generates or reuses a UUID
-5. Writes Xray and Caddy config files
-6. Enables and starts the services
+3. Installs Caddy only when WebSocket mode is selected
+4. Generates or reuses a UUID and, for REALITY, key material and a short ID
+5. Writes the selected Xray configuration and, when needed, a Caddy config
+6. Validates the generated configurations
+7. Enables and starts the applicable services
 
 ## Generated Runtime Files
 
@@ -60,18 +70,31 @@ The installer writes files to these system paths:
 - `/etc/caddy/Caddyfile`
 - `/etc/systemd/system/xray.service`
 - `/etc/raystack/uuid`
+- `/etc/raystack/reality-private-key` (REALITY only)
+- `/etc/raystack/reality-public-key` (REALITY only)
+- `/etc/raystack/reality-short-id` (REALITY only)
 
 ## Default Configuration
 
-### Xray
+### VLESS + WebSocket + TLS
 
 - Protocol: `VLESS`
 - Transport: `WebSocket`
 - Path: `/ray`
 - Local listen address: `127.0.0.1`
 - Local port: `10000`
+- Public port: `443`, or `8443` when both modes are installed
 
-### Caddy
+### VLESS + TCP + REALITY
+
+- Protocol: `VLESS`
+- Transport: `TCP`
+- Flow: `xtls-rprx-vision`
+- Public port: `443`
+- Default destination and SNI: `www.microsoft.com:443` and `www.microsoft.com`
+- The installer prints the required public key and short ID after installation.
+
+### Caddy (WebSocket mode)
 
 - Automatic HTTPS for your domain
 - Reverse proxy for `/ray*` to `127.0.0.1:10000`
@@ -81,4 +104,6 @@ The installer writes files to these system paths:
 
 - The install flow is designed to be safe to run more than once.
 - Existing UUID is reused from `/etc/raystack/uuid`.
-- Caddy handles TLS automatically after DNS is set correctly.
+- Existing REALITY keys and short ID are reused from `/etc/raystack`.
+- Caddy handles TLS automatically after DNS is set correctly. In combined mode,
+  it listens on `8443` because REALITY owns `443`.
