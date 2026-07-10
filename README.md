@@ -61,6 +61,7 @@ Choose one of the prompts:
 5. Writes the selected Xray configuration and, when needed, a Caddy config
 6. Validates the generated configurations
 7. Enables and starts the applicable services
+8. Prints Mihomo / Clash Meta proxy YAML for the selected mode or modes
 
 ## Generated Runtime Files
 
@@ -107,3 +108,6 @@ The installer writes files to these system paths:
 - Existing REALITY keys and short ID are reused from `/etc/raystack`.
 - Caddy handles TLS automatically after DNS is set correctly. In combined mode,
   it listens on `8443` because REALITY owns `443`.
+- After a successful install, copy the displayed `MIHOMO / CLASH META PROXIES`
+  block into a Mihomo / Clash Meta configuration. For a REALITY node, replace
+  `YOUR_SERVER_ADDRESS` with the VPS IP address or domain before importing.

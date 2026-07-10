@@ -241,6 +241,47 @@ print_client_summary() {
   fi
 }
 
+print_clash_config() {
+  printf '\n%s\n' "----- BEGIN MIHOMO / CLASH META PROXIES -----"
+  printf '%s\n' "# Paste this block into your Mihomo / Clash Meta configuration."
+  printf '%s\n' "proxies:"
+
+  if [[ "${MODE}" == "ws" || "${MODE}" == "both" ]]; then
+    printf '%s\n' '  - name: "raystack-ws"'
+    printf '%s\n' '    type: vless'
+    printf '%s\n' "    server: \"${DOMAIN}\""
+    printf '%s\n' "    port: ${HTTPS_PORT}"
+    printf '%s\n' "    uuid: \"${UUID}\""
+    printf '%s\n' '    udp: true'
+    printf '%s\n' '    tls: true'
+    printf '%s\n' '    servername: "'"${DOMAIN}"'"'
+    printf '%s\n' '    network: ws'
+    printf '%s\n' '    ws-opts:'
+    printf '%s\n' '      path: "/ray"'
+    printf '%s\n' '    encryption: ""'
+  fi
+
+  if [[ "${MODE}" == "reality" || "${MODE}" == "both" ]]; then
+    printf '%s\n' '  - name: "raystack-reality"'
+    printf '%s\n' '    type: vless'
+    printf '%s\n' '    server: "YOUR_SERVER_ADDRESS"'
+    printf '%s\n' '    port: 443'
+    printf '%s\n' "    uuid: \"${UUID}\""
+    printf '%s\n' '    udp: true'
+    printf '%s\n' '    flow: xtls-rprx-vision'
+    printf '%s\n' '    tls: true'
+    printf '%s\n' "    servername: \"${REALITY_SNI}\""
+    printf '%s\n' '    client-fingerprint: chrome'
+    printf '%s\n' '    network: tcp'
+    printf '%s\n' '    reality-opts:'
+    printf '%s\n' "      public-key: \"${REALITY_PUBLIC_KEY}\""
+    printf '%s\n' "      short-id: \"${REALITY_SHORT_ID}\""
+    printf '%s\n' '    encryption: ""'
+  fi
+
+  printf '%s\n' "----- END MIHOMO / CLASH META PROXIES -----"
+}
+
 main() {
   parse_args "$@"
 
@@ -273,6 +314,9 @@ main() {
   start_services
 
   print_client_summary
+  print_clash_config
 }
 
-main "$@"
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+  main "$@"
+fi
