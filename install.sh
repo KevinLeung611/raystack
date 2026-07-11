@@ -178,7 +178,7 @@ parse_reality_key_pair() {
   local key_pair="$1"
 
   REALITY_PRIVATE_KEY="$(awk -F': *' '$1 == "PrivateKey" { print $2; exit }' <<<"${key_pair}" | tr -d '[:space:]')"
-  REALITY_PUBLIC_KEY="$(awk -F': *' '$1 == "Password" { print $2; exit }' <<<"${key_pair}" | tr -d '[:space:]')"
+  REALITY_PUBLIC_KEY="$(awk -F': *' '$1 ~ /^Password/ { print $2; exit }' <<<"${key_pair}" | tr -d '[:space:]')"
 }
 
 load_or_create_reality_credentials() {
