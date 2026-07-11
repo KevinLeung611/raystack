@@ -92,7 +92,7 @@ The installer writes files to these system paths:
 - Transport: `TCP`
 - Flow: `xtls-rprx-vision`
 - Public port: `443`
-- Default destination and SNI: `www.microsoft.com:443` and `www.microsoft.com`
+- Default destination and SNI: `swscan.apple.com:443` and `swscan.apple.com`
 - The installer prints the required public key and short ID after installation.
 
 ### Caddy (WebSocket mode)
