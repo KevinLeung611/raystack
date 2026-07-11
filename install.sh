@@ -174,6 +174,13 @@ load_or_create_uuid() {
   printf '%s\n' "${UUID}" | ${SUDO} tee "${UUID_FILE}" >/dev/null
 }
 
+parse_reality_key_pair() {
+  local key_pair="$1"
+
+  REALITY_PRIVATE_KEY="$(awk -F': *' '$1 == "PrivateKey" { print $2; exit }' <<<"${key_pair}" | tr -d '[:space:]')"
+  REALITY_PUBLIC_KEY="$(awk -F': *' '$1 == "Password" { print $2; exit }' <<<"${key_pair}" | tr -d '[:space:]')"
+}
+
 load_or_create_reality_credentials() {
   if [[ -f "${REALITY_PRIVATE_KEY_FILE}" && -f "${REALITY_PUBLIC_KEY_FILE}" && -f "${REALITY_SHORT_ID_FILE}" ]]; then
     REALITY_PRIVATE_KEY="$(tr -d '[:space:]' < "${REALITY_PRIVATE_KEY_FILE}")"
@@ -188,8 +195,7 @@ load_or_create_reality_credentials() {
 
   local key_pair
   key_pair="$(xray x25519)"
-  REALITY_PRIVATE_KEY="$(awk -F': ' '/Private key:/ { print $2 }' <<<"${key_pair}")"
-  REALITY_PUBLIC_KEY="$(awk -F': ' '/Public key:/ { print $2 }' <<<"${key_pair}")"
+  parse_reality_key_pair "${key_pair}"
   REALITY_SHORT_ID="$(openssl rand -hex 8)"
 
   [[ -n "${REALITY_PRIVATE_KEY}" && -n "${REALITY_PUBLIC_KEY}" ]] || fail "Unable to generate REALITY key pair"
